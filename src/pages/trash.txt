@@ -1,0 +1,275 @@
+import React, { useEffect, useState } from 'react';
+import { UserAuth } from '../context/AuthContext';
+import { FaClipboard, FaFolder, FaShare, FaCog } from 'react-icons/fa';
+
+const Dashboard = () => {
+  const { user, logout } = UserAuth();
+  const [clipboardEntries, setClipboardEntries] = useState([]);
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [folders, setFolders] = useState([]);
+
+  useEffect(() => {
+    // Fetch clipboard entries from the backend API
+    fetchClipboardEntries();
+    
+    // Fetch folders from the backend API
+    fetchFolders();
+  }, []);
+
+  const fetchClipboardEntries = async () => {
+    try {
+      // Make an API call to fetch clipboard entries for the logged-in user
+      const response = await fetch('/api/clipboard-entries', {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await response.json();
+      setClipboardEntries(data);
+    } catch (error) {
+      console.error('Error fetching clipboard entries:', error);
+    }
+  };
+
+  const fetchFolders = async () => {
+    try {
+      // Make an API call to fetch folders for the logged-in user
+      const response = await fetch('/api/folders', {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await response.json();
+      setFolders(data);
+    } catch (error) {
+      console.error('Error fetching folders:', error);
+    }
+  };
+
+  const handleEntryClick = (entry) => {
+    setSelectedEntry(entry);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleFolderClick = (folder) => {
+    // Filter clipboard entries based on the selected folder
+    // Update the displayed entries accordingly
+  };
+
+  const filteredEntries = clipboardEntries.filter((entry) =>
+    entry.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <div className="flex h-screen">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-100 dark:bg-gray-800 p-4">
+        <div className="mb-8">
+          <img
+            className="mx-auto h-10 w-auto"
+            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            alt="Your Company"
+          />
+          <h2 className="mt-4 text-center text-xl font-bold text-gray-800 dark:text-gray-100">
+            Welcome, {user.displayName}
+          </h2>
+        </div>
+        <nav>
+          <ul>
+            <li className="mb-2">
+              <a
+                href="#"
+                className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                <FaClipboard className="mr-2" />
+                All Clips
+              </a>
+            </li>
+            <li className="mb-2">
+              <a
+                href="#"
+                className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                <FaFolder className="mr-2" />
+                Folders
+              </a>
+            </li>
+            <li className="mb-2">
+              <a
+                href="#"
+                className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                <FaShare className="mr-2" />
+                Shared
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                <FaCog className="mr-2" />
+                Settings
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto p-8">
+        {/* Search Bar */}
+        <div className="mb-8">
+          <input
+            type="text"
+            placeholder="Search clips..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        {/* Clipboard Feed */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredEntries.map((entry) => (
+            <div
+              key={entry.id}
+              className="bg-white dark:bg-gray-700 rounded-md shadow-md p-4 cursor-pointer"
+              onClick={() => handleEntryClick(entry)}
+            >
+              <div className="mb-2">
+                {entry.type === 'text' && (
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    {entry.content.slice(0, 100)}...
+                  </div>
+                )}
+                {entry.type === 'image' && (
+                  <img
+                    src={entry.url}
+                    alt={entry.title}
+                    className="w-full h-32 object-cover rounded-md"
+                  />
+                )}
+                {entry.type === 'file' && (
+                  <div className="flex items-center">
+                    <FaFile className="mr-2" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {entry.fileName}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {entry.createdAt}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Folders */}
+        <div className="mt-8">
+          <h3 className="text-lg font-bold mb-4">Folders</h3>
+          <div className="flex flex-wrap gap-4">
+            {folders.map((folder) => (
+              <div
+                key={folder.id}
+                className="bg-indigo-500 text-white dark:bg-indigo-600 dark:text-gray-100 px-4 py-2 rounded-md cursor-pointer"
+                onClick={() => handleFolderClick(folder)}
+              >
+                {folder.name}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Entry Details */}
+      {selectedEntry && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white dark:bg-gray-700 rounded-md shadow-md p-8 max-w-2xl w-full">
+            <h2 className="text-2xl font-bold mb-4">{selectedEntry.title}</h2>
+            {selectedEntry.type === 'text' && (
+              <p className="text-gray-800 dark:text-gray-100">
+                {selectedEntry.content}
+              </p>
+            )}
+            {selectedEntry.type === 'image' && (
+              <img
+                src={selectedEntry.url}
+                alt={selectedEntry.title}
+                className="w-full h-auto mb-4 rounded-md"
+              />
+            )}
+            {selectedEntry.type === 'file' && (
+              <div className="flex items-center mb-4">
+                <FaFile className="mr-2" />
+                <span className="text-gray-800 dark:text-gray-100">
+                  {selectedEntry.fileName}
+                </span>
+              </div>
+            )}
+            <button
+              onClick={() => setSelectedEntry(null)}
+              className="mt-4 px-4 py-2 bg-indigo-500 text-white dark:bg-indigo-600 dark:text-gray-100 rounded-md"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Button */}
+      <button
+        onClick={logout}
+        className="fixed bottom-4 right-4 px-4 py-2 bg-red-500 text-white dark:bg-red-600 dark:text-gray-100 rounded-md"
+      >
+        Logout
+      </button>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+
+
+import React, { useEffect, useState } from 'react'
+import { UserAuth } from '../context/AuthContext'
+
+
+const Dashboard = () => {
+    const { user, logout } = UserAuth();
+
+    
+  return (
+    <div className="h-screen flex justify-center items-center dark:bg-gray-90">
+        <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+          <img
+            className="mx-auto h-10 w-auto"
+            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            alt="Your Company"
+          />
+          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900 dark:text-gray-50 sm:text-3xl sm:leading-10">
+            Welcome {user.displayName}
+          </h2>
+        </div>
+        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+            <button
+                onClick={logout}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+                Logout
+            </button>
+        </div>
+    </div>
+    </div>
+
+  )
+}
+
+export default Dashboard

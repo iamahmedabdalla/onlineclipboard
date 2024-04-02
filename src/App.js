@@ -1,23 +1,32 @@
-import logo from './logo.svg';
+// Routes
+import { Route, Routes } from 'react-router-dom';
+import { AuthContextProvider } from './context/AuthContext';
+
+
+// Pages
+import Index from './pages/Index';
+import PageNotFound from './pages/PageNotFound';
+import Register from './Auth/Register';
+import Login from './Auth/Login';
+import ForgotPassword from './Auth/ForgotPassword';
+import ProtectedRoute from './context/ProtectedRoute';
+import Dashboard from './pages/Dashboard';
+
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="dark:bg-gray-900 dark:text-gray-50 h-full ">
+      <AuthContextProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </AuthContextProvider>
     </div>
   );
 }
