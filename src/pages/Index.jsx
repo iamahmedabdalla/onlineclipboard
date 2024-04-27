@@ -71,7 +71,7 @@ const Index = () => {
         </div>
         
         <div className="hidden items-center justify-end md:flex md:flex-1 lg:w-0">
-          <Link to='/login' className="whitespace-nowrap text-base font-medium text-gray-200 hover:text-gray-400">
+          <Link to='/login' className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-400">
             Sign in
           </Link>
           <Link
@@ -92,7 +92,7 @@ const Index = () => {
                 <span className="block text-blue-600 xl:inline">Clipboard in the world</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mx-auto sm:mt-5 sm:max-w-xl sm:text-lg md:mt-5 md:text-xl lg:mx-0">
-                This clipboard can hold text, images, and files. It can be accessed from anywhere and shared with anyone.
+                This clipboard can hold text, images, and files. Login to get started.
               </p>
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                 <div className="rounded-md shadow">
