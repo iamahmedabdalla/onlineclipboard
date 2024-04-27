@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaArrowUp, FaBars, FaEdit, FaFile, FaTimes, FaUser } from "react-icons/fa";
+import {
+  FaArrowUp,
+  FaBars,
+  FaEdit,
+  FaFile,
+  FaTimes,
+  FaUser,
+} from "react-icons/fa";
 import {
   collection,
   addDoc,
@@ -88,13 +95,12 @@ const Dashboard = () => {
           setSessions(sessionsData);
         }
       );
-  
+
       return () => {
         unsubscribe();
       };
     } else {
       // message.error("User not found" + user + user.email);
-
     }
   }, [user]);
 
@@ -184,7 +190,6 @@ const Dashboard = () => {
       return;
     }
 
-
     const newInput = {
       text: userInput,
       files: uploadedFiles.map(({ file }) => ({
@@ -192,14 +197,17 @@ const Dashboard = () => {
         type: file.type,
       })),
       createdAt: new Date(),
-      type: uploadedFiles.length > 0 ? uploadedFiles[0].type.split("/")[0] : "text",
+      type:
+        uploadedFiles.length > 0 ? uploadedFiles[0].type.split("/")[0] : "text",
     };
 
     // alert("User input: " + userInput);
 
     try {
-      
-      await addDoc(collection(db, "sessions", activeSession.id, "inputs"), newInput);
+      await addDoc(
+        collection(db, "sessions", activeSession.id, "inputs"),
+        newInput
+      );
       setUserInput("");
       setUploadedFiles([]);
     } catch (error) {
@@ -217,19 +225,18 @@ const Dashboard = () => {
   };
 
   const deleteSession = async (sessionId) => {
-    
-      try {
-        const sessionRef = doc(db, "sessions", sessionId);
-        const sessionDoc = await getDoc(sessionRef);
-        if (sessionDoc.exists() && sessionDoc.data().owner === user.email) {
-          await deleteDoc(sessionRef);
-          console.log("Session deleted successfully");
-        } else {
-          console.log("Session not found or does not belong to the user");
-        }
-      } catch (error) {
-        console.error("Error deleting session: ", error);
+    try {
+      const sessionRef = doc(db, "sessions", sessionId);
+      const sessionDoc = await getDoc(sessionRef);
+      if (sessionDoc.exists() && sessionDoc.data().owner === user.email) {
+        await deleteDoc(sessionRef);
+        console.log("Session deleted successfully");
+      } else {
+        console.log("Session not found or does not belong to the user");
       }
+    } catch (error) {
+      console.error("Error deleting session: ", error);
+    }
   };
 
   const handleCopyToClipboard = (text) => {
@@ -257,8 +264,7 @@ const Dashboard = () => {
       console.log(error.message);
       message.error(error.message);
     }
-  }
-
+  };
 
   return (
     <div className="flex h-screen">
@@ -336,31 +342,46 @@ const Dashboard = () => {
       <div className="flex-1 bg-gray-900 p-4 ml-72">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-          <h2 className="text-xl text-gray-300 font-bold">{activeSession?.name}</h2>
-          {activeSession && (
-          <Tooltip title="Edit Session Name">
-          <button 
-            onClick={() => setSessionNameEdit(!sessionNameEdit)} className="text-gray-400 hover:text-white focus:outline-none">
-            <FaEdit />
-          </button>
-          </Tooltip>
-          )}
-          {sessionNameEdit === true && (
-            <>
-          <input 
-            type="text" 
-            value={sessionName}
-            onChange={(e) => setSessionName(e.target.value)}
-            placeholder="Session Name" 
-            className=" px-4 py-2 bg-gray-700 text-white rounded-md focus:outline-none" />
-          <button 
-            onClick={() => sessionName === "" ? message.error("Session name cannot be empty") : handleSessionNameChange(activeSession.id)}
-            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none">Save </button>
-          <button 
-            onClick={() => setSessionNameEdit(false)}
-            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none">Cancel</button>
-          </>
-          )}
+            <h2 className="text-xl text-gray-300 font-bold">
+              {activeSession?.name}
+            </h2>
+            {activeSession && (
+              <Tooltip title="Edit Session Name">
+                <button
+                  onClick={() => setSessionNameEdit(!sessionNameEdit)}
+                  className="text-gray-400 hover:text-white focus:outline-none"
+                >
+                  <FaEdit />
+                </button>
+              </Tooltip>
+            )}
+            {sessionNameEdit === true && (
+              <>
+                <input
+                  type="text"
+                  value={sessionName}
+                  onChange={(e) => setSessionName(e.target.value)}
+                  placeholder="Session Name"
+                  className=" px-4 py-2 bg-gray-700 text-white rounded-md focus:outline-none"
+                />
+                <button
+                  onClick={() =>
+                    sessionName === ""
+                      ? message.error("Session name cannot be empty")
+                      : handleSessionNameChange(activeSession.id)
+                  }
+                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none"
+                >
+                  Save{" "}
+                </button>
+                <button
+                  onClick={() => setSessionNameEdit(false)}
+                  className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
           </div>
           <div className="flex items-center space-x-4">
             {activeSession && (
@@ -375,19 +396,17 @@ const Dashboard = () => {
                 </button>
               </Popconfirm>
             )}
-              
           </div>
         </div>
 
         {/* Output Field */}
-        <div
-          ref={outputContainerRef}
-          className="mt-4 h-5/6 overflow-y-auto"
-        >
+        <div ref={outputContainerRef} className="mt-4 h-5/6 overflow-y-auto">
           {inputDetails.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               {activeSession === null && (
-              <h1 className="text-5xl text-gray-300">Select a session and start typing...</h1>
+                <h1 className="text-5xl text-gray-300">
+                  Select a session and start typing...
+                </h1>
               )}
               {inputDetails.length === 0 && activeSession !== null && (
                 <h1 className="text-5xl text-gray-300">No chat available</h1>
@@ -427,7 +446,9 @@ const Dashboard = () => {
                         ))}
                       </div>
                     )}
-                    <p className="text-lg text-white break-words">{input.text}</p>
+                    <p className="text-lg text-white break-words">
+                      {input.text}
+                    </p>
                   </div>
                   <div className="flex flex-col p-2 space-y-3">
                     <button
@@ -448,11 +469,9 @@ const Dashboard = () => {
                       okText="Yes"
                       cancelText="No"
                     >
-                    <button
-                      className="flex w-full justify-center rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                      Delete
-                    </button>
+                      <button className="flex w-full justify-center rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Delete
+                      </button>
                     </Popconfirm>
                   </div>
                 </div>
