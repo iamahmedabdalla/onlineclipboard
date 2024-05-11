@@ -2,9 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   FaArrowUp,
   FaBars,
+  FaCopy,
   FaEdit,
   FaFile,
+  FaMicrochip,
+  FaMicrophone,
+  FaMicrophoneAltSlash,
+  FaRobot,
   FaTimes,
+  FaTrash,
   FaUser,
 } from "react-icons/fa";
 import {
@@ -22,7 +28,10 @@ import { UserAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { db, storage } from "../firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { Image, message, Popconfirm, Tooltip } from "antd";
+import { Image, message, Popconfirm, Tooltip, Switch, Spin } from "antd";
+
+const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
+
 
 const Dashboard = () => {
   const { user, logout } = UserAuth();
@@ -42,6 +51,89 @@ const Dashboard = () => {
   const [sessionName, setSessionName] = useState("");
   const [sessionNameEdit, setSessionNameEdit] = useState(false);
 
+  // using AI to answer some question
+  const [useAI, setUseAI] = useState(true)
+  const [answering, setAnswering] = useState(false)
+  const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GOOGLE_GEMINI_API_KEY);
+
+  const AskAI = async ( { Question } ) => {
+    if (useAI) {
+    setAnswering(true);
+
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+    const generationConfig = {
+      temperature: 1,
+      topK: 0,
+      topP: 0.95,
+      maxOutputTokens: 8192,
+    };
+  
+    const safetySettings = [
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+      {
+        category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
+    ];
+
+    const chat = model.startChat({
+      generationConfig,
+      safetySettings,
+    });
+    
+
+    const prompt =  "Do not use ** or any other HTML tags in your output \n" + Question;
+    
+    const result = await chat.sendMessage(prompt);
+    const response = result.response;
+    const text = response.text();
+    // send the response to the firestore database
+    try {
+      await addDoc(
+        collection(db, "sessions", activeSession.id, "inputs"),
+        { text: Question + "? A: " + text, createdAt: new Date(), type: "text" }
+      );
+    } 
+    catch (error) {
+      console.log(error.message);
+      message.error("Error adding input to session");
+    }
+    setAnswering(false);
+    } else {
+      message.error("AI is turned off");
+    }
+  };
+
+  // using text to speech
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const textToSpeech = (text) => {
+    if (!isSpeaking) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      speechSynthesis.speak(utterance);
+    } else {
+      speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+
+
+  
+
   useEffect(() => {
     const uploadFiles = async () => {
       const promises = uploadedFiles.map(async ({ file, type }) => {
@@ -55,7 +147,11 @@ const Dashboard = () => {
         try {
           const snapshot = await uploadTask;
           const downloadURL = await getDownloadURL(snapshot.ref);
+          setImagesUrls(downloadURL);
           return { url: downloadURL, type: fileType };
+
+          
+          
         } catch (error) {
           console.log(error);
           throw error;
@@ -70,7 +166,8 @@ const Dashboard = () => {
           key: "uploading",
           duration: 2,
         });
-        setImagesUrls(files);
+        // url of the first file uploaded
+        setImagesUrls(files.map((file) => file.url));
         setUserInput(uploadedFiles[0].file.name);
       } catch (error) {
         console.log(error);
@@ -156,7 +253,7 @@ const Dashboard = () => {
 
   const handleInputChange = (e) => {
     setUserInput(e.target.value);
-  };
+  }
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files).map((file) => ({
@@ -193,7 +290,7 @@ const Dashboard = () => {
     const newInput = {
       text: userInput,
       files: uploadedFiles.map(({ file }) => ({
-        url: URL.createObjectURL(file),
+        url: imagesUrls,
         type: file.type,
       })),
       createdAt: new Date(),
@@ -268,6 +365,11 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen">
+      {answering && (
+        <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+          <Spin size="large" />
+        </div>
+      )}
       {/* Sidebar */}
       <div
         className={`${
@@ -346,6 +448,7 @@ const Dashboard = () => {
               {activeSession?.name}
             </h2>
             {activeSession && (
+              <>
               <Tooltip title="Edit Session Name">
                 <button
                   onClick={() => setSessionNameEdit(!sessionNameEdit)}
@@ -354,7 +457,17 @@ const Dashboard = () => {
                   <FaEdit />
                 </button>
               </Tooltip>
+              <Switch checked={useAI} onChange={(checked) => setUseAI(checked)} />
+              
+            {/* <span className="text-white">
+              Use AI 
+            </span>
+            <button onClick={AskAI}>Run AI</button>
+            <span className="text-red-400"> Debug: AI is {useAI ? "ON" : "OFF"}</span> */}
+              </>
+
             )}
+            
             {sessionNameEdit === true && (
               <>
                 <input
@@ -385,6 +498,7 @@ const Dashboard = () => {
           </div>
           <div className="flex items-center space-x-4">
             {activeSession && (
+              
               <Popconfirm
                 title="Are you sure you want to delete this session?"
                 onConfirm={() => deleteSession(activeSession.id)}
@@ -447,7 +561,7 @@ const Dashboard = () => {
                       </div>
                     )}
                     <p className="text-lg text-white break-words">
-                      {input.text}
+                      {input.type === "text" ? input.text : <a href={input?.files[0].url} target="_blank" rel="noreferrer">{input?.text}</a>}
                     </p>
                   </div>
                   <div className="flex flex-col p-2 space-y-3">
@@ -461,7 +575,7 @@ const Dashboard = () => {
                         )
                       }
                     >
-                      Copy
+                      <FaCopy />
                     </button>
                     <Popconfirm
                       title="Are you sure you want to delete this chat?"
@@ -470,9 +584,24 @@ const Dashboard = () => {
                       cancelText="No"
                     >
                       <button className="flex w-full justify-center rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                        Delete
+                        <FaTrash />
                       </button>
                     </Popconfirm>
+                    
+                    <button
+                      className="flex w-full justify-center rounded-md bg-blue-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      onClick={() => AskAI({ Question: input.text })}
+                    >
+                      <FaRobot />
+                    </button>
+                    <button
+                      className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      onClick={() => textToSpeech(input.text)}
+                    >
+                      {isSpeaking ? <FaMicrophoneAltSlash /> : <FaMicrophone />}
+                    </button>
+                    
+
                   </div>
                 </div>
               ))}
@@ -499,6 +628,16 @@ const Dashboard = () => {
               >
                 <FaArrowUp />
               </button>
+
+              {useAI && (
+              <button
+                className="px-3 py-3 bg-gray-600 text-white hover:bg-lime-700 focus:outline-none rounded-full"
+                onClick={() => AskAI({ Question: userInput })}
+              >
+                <FaMicrochip />
+              </button>
+              )}
+
 
               <label
                 htmlFor="file-upload"
