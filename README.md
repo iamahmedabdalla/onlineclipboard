@@ -4,20 +4,24 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Introduction
 
-Welcome to our Online Clipboard application with extra features! This application allows users to manage their sessions, store and interact with various types of content, and leverage additional functionalities such as AI-generated responses and text-to-speech capabilities.
+Just another online Clipboard application with some intresting features.
 
 ## Features
 
-Session Management: Create, delete, and switch between different sessions to organize your content efficiently.
+Session Management: Create, delete, and switch between different sessions.
 Text and File Upload: 
 - Easily input text or upload files to store and share within sessions.
-- AI Integration: Utilize Google's Generative AI to generate responses to questions, enhancing interactivity within sessions.
-- Text-to-Speech: Convert text inputs into speech for auditory feedback or accessibility purposes.
-- User Authentication: Securely log in and manage sessions tied to your user account.
+- AI Integration: Generative AI to generate responses to questions.
+- Text-to-Speech: Convert text inputs into speech - why not.
+- User Authentication: Yeah - why not also.
 
 ## Available Scripts
 
 In the project directory, you can run:
+
+### `Set up Firebase`
+
+### `Google AI API `
 
 ### `npm start`
 
@@ -27,9 +31,6 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
-### `Set up Firebase`
-
-### `Google AI API `
 
 ## Usage
 
