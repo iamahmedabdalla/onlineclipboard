@@ -13,11 +13,7 @@ Text and File Upload:
 - Easily input text or upload files to store and share within sessions.
 - AI Integration: Generative AI to generate responses to questions.
 - Text-to-Speech: Convert text inputs into speech - why not.
-- User Authentication: Yeah - why not also.
-
-## Available Scripts
-
-In the project directory, you can run:
+- User Authentication: Self explanatory.
 
 ### `Set up Firebase`
 
@@ -37,7 +33,7 @@ You may also see any lint errors in the console.
 - Sign in or create an account.
 - Create a new session or select an existing one.
 - Input text or upload files into the session.
-- Interact with the content using features like AI responses and text-to-speech.
+- Interact with the content using AI responses and text-to-speech.
 - Manage sessions and content as needed.
 
 ## License
