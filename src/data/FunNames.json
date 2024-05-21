@@ -1,0 +1,102 @@
+[
+    {
+      "number": 1,
+      "name": "Giggly Giraffe",
+      "available": true
+    },
+    {
+      "number": 2,
+      "name": "Funky Flamingo",
+      "available": true
+    },
+    {
+      "number": 3,
+      "name": "Zippy Zebra",
+      "available": true
+    },
+    {
+      "number": 4,
+      "name": "Jolly Jaguar",
+      "available": true
+    },
+    {
+      "number": 5,
+      "name": "Wacky Walrus",
+      "available": true
+    },
+    {
+      "number": 6,
+      "name": "Quirky Quokka",
+      "available": true
+    },
+    {
+      "number": 7,
+      "name": "Groovy Gnu",
+      "available": true
+    },
+    {
+      "number": 8,
+      "name": "Zany Zonkey",
+      "available": true
+    },
+    {
+      "number": 9,
+      "name": "Peppy Puffin",
+      "available": true
+    },
+    {
+      "number": 10,
+      "name": "Jazzy Jackalope",
+      "available": true
+    },
+    {
+      "number": 11,
+      "name": "Loopy Lemur",
+      "available": true
+    },
+    {
+      "number": 12,
+      "name": "Whimsical Wombat",
+      "available": true
+    },
+    {
+      "number": 13,
+      "name": "Swingin' Sloth",
+      "available": true
+    },
+    {
+      "number": 14,
+      "name": "Goofy Guanaco",
+      "available": true
+    },
+    {
+      "number": 15,
+      "name": "Madcap Meerkat",
+      "available": true
+    },
+    {
+      "number": 16,
+      "name": "Rollicking Raccoon",
+      "available": true
+    },
+    {
+      "number": 17,
+      "name": "Jaunty Jerboa",
+      "available": true
+    },
+    {
+      "number": 18,
+      "name": "Kooky Kiwi",
+      "available": true
+    },
+    {
+      "number": 19,
+      "name": "Playful Platypus",
+      "available": true
+    },
+    {
+      "number": 20,
+      "name": "Frolicsome Fennec",
+      "available": true
+    }
+  ]
