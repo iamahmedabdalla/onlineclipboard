@@ -1,11 +1,5 @@
 # Online Clipboard with Extra Features
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Introduction
-
-Just another online Clipboard application with some intresting features.
-
 ## Features
 
 Session Management: Create, delete, and switch between different sessions.
@@ -35,7 +29,3 @@ You may also see any lint errors in the console.
 - Input text or upload files into the session.
 - Interact with the content using AI responses and text-to-speech.
 - Manage sessions and content as needed.
-
-## License
-
-Do what you want with it
